@@ -7,6 +7,7 @@ route.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'../','views','login.html'))
 })
 route.post('/success',(req,res)=>{
+    console.log(req.body)
     res.sendFile(path.join(__dirname,'../','views','login-success.html'))
 })
 
