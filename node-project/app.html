@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="app.css">
+  </head>
+  <body>
+    <form onsubmit="handleFormSubmit(event)">
+      <label for="username">Username:</label>
+      <br>
+      <input type="text" name="username" id="username" required/>
+      <br>
+      <label for="email">Email:</label>
+      <br>
+      <input type="email" name="email" id="email" required />
+      <br>
+      <label for="phone">Phone No:</label>
+      <br>
+      <input type="tel" name="phone" id="phone" required/>
+      <br>
+      <button type="submit">Submit</button>
+    </form>
+    <ul id="ul">
+      
+    </ul>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+  <script>
+    function handleFormSubmit(event){
+    event.preventDefault();
+    const user = event.target.username.value;
+    const email = event.target.email.value;
+    const phone = event.target.phone.value;
+  
+    const newUser = {
+      username: user,
+      email: email,
+      phonenumber: phone,
+    };
+
+    //console.log(newUser)
+
+    axios.post('http://localhost:3000/user/add-user',newUser)
+    .then(res => {
+      showOnScreen(res.data.newUser)
+    })
+    .catch(err =>console.error(err))  
+    }
+window.addEventListener('DOMContentLoaded',()=>{
+      axios.get('http://localhost:3000/user/get-users')
+      .then(result=>{
+      //result.data.allUsers.length
+      for(let i=0;i<result.data.allUsers.length;i++){
+      showOnScreen(result.data.allUsers[i])
+      }
+    })
+    .catch(err =>console.error(err)) 
+    })
+
+function showOnScreen(x){
+  let id=x.id;
+  let name=x.username;
+  let phone=x.phonenumber;
+  let email=x.email;
+
+  let ul=document.getElementById('ul')
+
+  let li=document.createElement('li');
+  li.id=id;
+  let liText=document.createTextNode(`${name}-${email}`)
+
+  let button=document.createElement('button');
+  button.textContent='Delete'
+  button.onclick=()=>deleteUser(`${id}`)
+
+  let buton2=document.createElement('button')
+  buton2.textContent='Edit'
+  buton2.onclick=()=>editUser(`${id}`)
+
+
+  li.appendChild(liText)
+  li.appendChild(button)
+
+  li.appendChild(buton2)
+  ul.appendChild(li)
+}
+function editUser(x){
+  axios.put(`http://localhost:3000/user/update-user/${x}`)
+  .then(result=>{
+    console.log(result.data.userDetails[0].username)
+    document.getElementById('username').value=result.data.userDetails[0].username;
+    document.getElementById('email').value=result.data.userDetails[0].email
+    document.getElementById('phone').value=result.data.userDetails[0].phonenumber
+    deleteUser(result.data.userDetails[0].id)
+  })
+}
+function deleteUser(x){
+  axios.delete(`http://localhost:3000/user/delete-user/${x}`)
+  .then(deletetext(x))
+  .catch(err=>console.log(err));
+}
+function deletetext(x){
+  let ul=document.getElementById('ul');
+  let li=document.getElementById(`${x}`);
+
+  ul.removeChild(li)
+}
+  </script>
+  <script src="app.js"></script>
+</html>
